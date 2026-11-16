@@ -28,7 +28,21 @@ def compute_deltas(
         Each player's incentive to deviate
     """
 
-    raise NotImplementedError
+    #row payoff against col strategy
+
+    row_payoff = row_matrix @ col_strategy
+    best_row_payoff = max(row_payoff)
+    current_row_payoff = row_strategy @ row_payoff
+
+    row_delta= best_row_payoff-current_row_payoff
+
+    col_payoff = row_strategy@col_matrix
+    best_col_payoff = max(col_payoff)
+    current_col_payoff=col_strategy@col_payoff
+
+    col_delta=best_col_payoff-current_col_payoff
+
+    return np.array([row_delta, col_delta])
 
 
 def compute_nash_conv(
@@ -55,8 +69,10 @@ def compute_nash_conv(
     np.float64
         The NashConv value of the given strategy profile
     """
+    deltas=compute_deltas(row_matrix, col_matrix, row_strategy, col_strategy)
 
-    raise NotImplementedError
+    return deltas.sum(dtype=np.float64)
+
 
 
 def compute_exploitability(
@@ -84,7 +100,9 @@ def compute_exploitability(
         The exploitability value of the given strategy profile
     """
 
-    raise NotImplementedError
+    nash_conv=compute_nash_conv(row_matrix, col_matrix, row_strategy, col_strategy)
+
+    return nash_conv/2
 
 
 def fictitious_play(
