@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -18,7 +19,7 @@ def compute_deltas(
     col_matrix : np.ndarray
         The column player's payoff matrix
     row_strategy : np.ndarray
-        The row player's strategy
+  The row player's strategy
     col_strategy : np.ndarray
         The column player's strategy
 
@@ -135,7 +136,36 @@ def fictitious_play(
         The sequence of `num_iters` average strategy profiles produced by the algorithm
     """
 
-    raise NotImplementedError
+    num_rows, num_cols = row_matrix.shape
+    row_belief = np.full(num_rows, 1 / num_rows)
+    col_belief = np.full(num_cols, 1 / num_cols)
+    row_average = np.zeros(num_rows)
+    col_average = np.zeros(num_cols)
+    strategies = []
+
+    for i in range(num_iters):
+        # Both players respond to the beliefs from the previous round.
+        row_payoff = row_matrix @ col_belief
+        col_payoff = row_belief @ col_matrix
+
+        row_strategy = np.zeros(num_rows)
+        col_strategy = np.zeros(num_cols)
+        row_strategy[np.argmax(row_payoff)] = 1.0
+        col_strategy[np.argmax(col_payoff)] = 1.0
+
+        # Average only the strategies actually played, excluding initial beliefs.
+        row_average += (row_strategy - row_average) / (i + 1)
+        col_average += (col_strategy - col_average) / (i + 1)
+        strategies.append((row_average.copy(), col_average.copy()))
+
+        if naive:
+            row_belief = row_strategy
+            col_belief = col_strategy
+        else:
+            row_belief = row_average
+            col_belief = col_average
+
+    return strategies
 
 
 def plot_exploitability(
@@ -163,11 +193,37 @@ def plot_exploitability(
         A sequence of exploitability values, one for each strategy profile
     """
 
-    raise NotImplementedError
+    values = []
+
+    for row_strategy, col_strategy in strategies:
+        value = compute_exploitability(
+            row_matrix, col_matrix, row_strategy, col_strategy
+        )
+        values.append(value)
+
+    plt.plot(range(1, len(values) + 1), values, label=label)
+    plt.xlabel('Iteration')
+    plt.ylabel('Exploitability')
+    plt.legend()
+    plt.grid(True)
+
+    return values
 
 
 def main() -> None:
-    pass
+    # Compare both versions on the matching-pennies game.
+    row_matrix = np.array([[1, -1], [-1, 1]], dtype=np.float64)
+    col_matrix = -row_matrix
+
+    plt.figure()
+    for naive in (False, True):
+        strategies = fictitious_play(row_matrix, col_matrix, num_iters=1000, naive=naive)
+        label = 'Naive fictitious play' if naive else 'Fictitious play'
+        plot_exploitability(row_matrix, col_matrix, strategies, label)
+
+    plt.title('Matching pennies: exploitability over time')
+    plt.tight_layout()
+    plt.show()
 
 
 if __name__ == '__main__':
