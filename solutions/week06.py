@@ -3,46 +3,33 @@
 import numpy as np
 
 
-def regret_matching(regrets: np.ndarray) -> np.ndarray:
-    """Generate a strategy based on the given cumulative regrets.
+def double_oracle(
+    row_matrix: np.ndarray, eps: float, rng: np.random.Generator
+) -> tuple[list[tuple[np.ndarray, np.ndarray]], list[tuple[np.ndarray, np.ndarray]]]:
+    """Run Double Oracle until a termination condition is met.
 
-    If no action has a positive cumulative regret, the uniform strategy is returned.
+    The reference implementation generates the initial restricted game by
+    randomly sampling one pure action for each player using `rng.integers`,
+    first for the row player and then for the column player.
 
-    Parameters
-    ----------
-    regrets : np.ndarray
-        The vector containing cumulative regret of each action
-
-    Returns
-    -------
-    np.ndarray
-        The generated strategy
-    """
-
-    raise NotImplementedError
-
-
-def regret_minimization(
-    row_matrix: np.ndarray, col_matrix: np.ndarray, num_iters: int
-) -> list[tuple[np.ndarray, np.ndarray]]:
-    """Run Regret Minimization for a given number of iterations.
-
-    The reference solution starts with uniform strategies, which form the first strategy
-    profile, and updates the cumulative regrets of both players simultaneously.
+    The algorithm terminates when either:
+        1. the difference between the upper and the lower bound on the game value drops below `eps`
+        2. both players' best responses are already contained in the current restricted game
 
     Parameters
     ----------
     row_matrix : np.ndarray
         The row player's payoff matrix
-    col_matrix : np.ndarray
-        The column player's payoff matrix
-    num_iters : int
-        The number of iterations to run the algorithm for
+    eps : float
+        The required accuracy for the approximate Nash equilibrium
+    rng : np.random.Generator
+        A random number generator
 
     Returns
     -------
-    list[tuple[np.ndarray, np.ndarray]]
-        The sequence of `num_iters` average strategy profiles produced by the algorithm
+    tuple[list[tuple[np.ndarray, np.ndarray]], list[tuple[np.ndarray, np.ndarray]]]
+        A tuple containing a sequence of strategy profiles and a sequence of corresponding
+        actions in the restricted games, listed in the order in which they were added
     """
 
     raise NotImplementedError

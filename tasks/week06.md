@@ -1,7 +1,9 @@
 # Week 6 Homework
 
-## 1) Regret Minimization
-- Implement Regret Minimization in normal-form games
+This is an optional homework assignment. Completing this assignment is not required to pass the course.
+
+## 1) Double Oracle
+- Implement the Double Oracle algorithm for zero-sum normal-form games
 - Compare the algorithm in terms of exploitability to Fictitious Play
 
 # Week 6 Template
